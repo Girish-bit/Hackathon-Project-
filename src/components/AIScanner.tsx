@@ -8,12 +8,40 @@ import { db, auth, handleFirestoreError, OperationType } from '../lib/firebase';
 import { analyzeThreat, analyzeImageThreat, ScanResult } from '../services/geminiService';
 import { cn } from '../lib/utils';
 import { THREAT_CONFIG } from '../constants';
+import { ForensicHeatmap } from './ForensicHeatmap';
+import { generateForensicReport } from '../lib/pdfGenerator';
+import { Download, FileDown } from 'lucide-react';
 
 export default function AIScanner() {
   const [input, setInput] = React.useState('');
   const [isScanning, setIsScanning] = React.useState(false);
   const [result, setResult] = React.useState<ScanResult | null>(null);
   const [mode, setMode] = React.useState<'text' | 'image' | 'link'>('text');
+  const [currentImage, setCurrentImage] = React.useState<string | null>(null);
+  const [lastIncidentId, setLastIncidentId] = React.useState<string | null>(null);
+
+  const handleDownloadPDF = async () => {
+    if (!result) return;
+    
+    // Create a mock incident for the PDF generator
+    const incidentStub = {
+      id: lastIncidentId || 'adhoc-analysis',
+      timestamp: new Date().toISOString(),
+      type: result.threatType as any,
+      source: mode === 'link' ? input : mode === 'image' ? 'Visual Forensics' : 'Text Analysis',
+      description: result.explanation,
+      mitigation: result.mitigationSteps.join('. '),
+      riskLevel: result.riskLevel,
+      status: 'intercepted' as const,
+      authorId: auth.currentUser?.uid || 'anonymous'
+    };
+
+    generateForensicReport(incidentStub, {
+      confidence: result.confidence,
+      threatType: result.threatType,
+      sourceImage: currentImage
+    });
+  };
 
   const recordIncident = async (scanRes: ScanResult, source: string) => {
     if (!auth.currentUser) return;
@@ -32,7 +60,7 @@ export default function AIScanner() {
     };
 
     try {
-      await addDoc(collection(db, path), {
+      const docRef = await addDoc(collection(db, path), {
         timestamp: new Date().toISOString(),
         type: mapThreatType(scanRes.threatType),
         source: source,
@@ -43,6 +71,7 @@ export default function AIScanner() {
         authorId: auth.currentUser.uid,
         createdAt: serverTimestamp()
       });
+      setLastIncidentId(docRef.id);
     } catch (error) {
       handleFirestoreError(error, OperationType.CREATE, path);
     }
@@ -54,10 +83,14 @@ export default function AIScanner() {
 
     setIsScanning(true);
     setResult(null);
+    setCurrentImage(null);
+    setLastIncidentId(null);
 
     const reader = new FileReader();
     reader.onload = async () => {
-      const base64 = (reader.result as string).split(',')[1];
+      const base64Content = reader.result as string;
+      const base64 = base64Content.split(',')[1];
+      setCurrentImage(base64Content);
       try {
         const res = await analyzeImageThreat(base64);
         setResult(res);
@@ -82,6 +115,8 @@ export default function AIScanner() {
     
     setIsScanning(true);
     setResult(null);
+    setCurrentImage(null);
+    setLastIncidentId(null);
     
     try {
       const res = await analyzeThreat(input, mode === 'link' ? 'link' : 'text');
@@ -206,10 +241,30 @@ export default function AIScanner() {
                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 block mb-1">Confidence Score</span>
                   <span className="text-xl font-mono text-white tabular-nums">{result.confidence}%</span>
                </div>
+               <button 
+                  onClick={handleDownloadPDF}
+                  className="ml-6 p-3 bg-brand-primary/10 border border-brand-primary/30 rounded-xl hover:bg-brand-primary/20 transition-all group flex items-center gap-2"
+                  title="Generate Forensic Report"
+               >
+                  <FileDown className="w-5 h-5 text-brand-primary" />
+                  <span className="text-[10px] font-black uppercase text-brand-primary hidden sm:block">Export PDF</span>
+               </button>
             </div>
 
             <div className="p-8 grid grid-cols-1 lg:grid-cols-5 gap-10">
               <div className="lg:col-span-3 space-y-8">
+                {mode === 'image' && currentImage && (
+                  <div>
+                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
+                       Visual Core Manifest
+                    </h4>
+                    <ForensicHeatmap 
+                      imageUrl={currentImage} 
+                      regions={result.heatmapRegions || []} 
+                      isLoading={isScanning} 
+                    />
+                  </div>
+                )}
                 <div>
                   <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-brand-primary" /> Intelligence Report

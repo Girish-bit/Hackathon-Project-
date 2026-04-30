@@ -16,12 +16,18 @@ function getAIInstance() {
   return aiInstance;
 }
 
+export interface HeatmapRegion {
+  box_2d: [number, number, number, number]; // [ymin, xmin, ymax, xmax] normalized 0-1000
+  label: string;
+}
+
 export interface ScanResult {
   riskLevel: ThreatLevel;
   confidence: number;
   explanation: string;
   mitigationSteps: string[];
   threatType: string;
+  heatmapRegions?: HeatmapRegion[];
 }
 
 export async function analyzeThreat(content: string, type: 'text' | 'link' | 'image_base64'): Promise<ScanResult> {
@@ -96,7 +102,9 @@ export async function analyzeImageThreat(base64Data: string): Promise<ScanResult
     - Signs of stenographic manipulation or hidden payloads
     - Fake UI elements designed for credential harvesting
     
-    Return a detailed JSON risk assessment with riskLevel (LOW, MEDIUM, HIGH, CRITICAL), confidence, explanation, mitigationSteps, and threatType.`,
+    CRITICAL: For any detected threat or piece of evidence, provide 'heatmapRegions' which are bounding boxes in [ymin, xmin, ymax, xmax] format (normalized 0-1000). For example, if a suspicious QR code is found, specify its location.
+    
+    Return a detailed JSON risk assessment with riskLevel (LOW, MEDIUM, HIGH, CRITICAL), confidence, explanation, mitigationSteps, threatType, and heatmapRegions.`,
   };
 
   const response = await ai.models.generateContent({
@@ -114,7 +122,23 @@ export async function analyzeImageThreat(base64Data: string): Promise<ScanResult
             type: Type.ARRAY, 
             items: { type: Type.STRING } 
           },
-          threatType: { type: Type.STRING }
+          threatType: { type: Type.STRING },
+          heatmapRegions: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                box_2d: { 
+                  type: Type.ARRAY, 
+                  items: { type: Type.NUMBER },
+                  minItems: 4,
+                  maxItems: 4
+                },
+                label: { type: Type.STRING }
+              },
+              required: ["box_2d", "label"]
+            }
+          }
         },
         required: ["riskLevel", "confidence", "explanation", "mitigationSteps", "threatType"]
       }
