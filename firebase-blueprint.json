@@ -1,0 +1,44 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "System operator or administrator profile.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["OPERATOR", "ADMIN"] },
+        "lastLogin": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Incident": {
+      "title": "Security Incident",
+      "description": "A persistent record of a detected threat.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "type": { "type": "string", "enum": ["MALWARE", "PHISHING", "VULNERABILITY", "NETWORK", "IDENTITY"] },
+        "source": { "type": "string" },
+        "description": { "type": "string" },
+        "mitigation": { "type": "string" },
+        "riskLevel": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"] },
+        "status": { "type": "string", "enum": ["intercepted", "analyzed", "monitored"] },
+        "authorId": { "type": "string" }
+      },
+      "required": ["timestamp", "type", "riskLevel", "authorId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile data."
+    },
+    "/incidents/{incidentId}": {
+      "schema": "Incident",
+      "description": "Security incident logs."
+    }
+  }
+}

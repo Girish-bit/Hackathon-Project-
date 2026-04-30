@@ -1,0 +1,13 @@
+{
+  "name": "Deep Guardian",
+  "description": "High-performance, premium AI-powered cybersecurity suite for real-time threat intelligence and proactive digital defense.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "AI-powered threat scanning",
+    "Security health monitoring",
+    "Real-time analytics dashboard",
+    "Incident logging & auditing"
+  ]
+}

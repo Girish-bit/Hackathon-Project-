@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;700&family=Outfit:wght@500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "Outfit", sans-serif;
+  
+  --color-brand-primary: #00D1FF; /* Neon Blue */
+  --color-brand-secondary: #00ff73; /* Matrix Green */
+  --color-brand-danger: #FF3D00; /* Neon Red */
+  --color-cyber-bg: #020408;
+  --color-cyber-sidebar: #050810;
+  --color-cyber-border: rgba(0, 209, 255, 0.15);
+  --color-glass-bg: rgba(15, 23, 42, 0.6);
+}
+
+@layer base {
+  body {
+    @apply bg-cyber-bg text-slate-300 font-sans selection:bg-brand-primary/30;
+    cursor: default;
+  }
+}
+
+.grid-bg {
+  background-image: radial-gradient(rgba(0, 209, 255, 0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+.glass-card {
+  @apply bg-glass-bg backdrop-blur-xl border border-cyber-border rounded-xl;
+  box-shadow: inset 0 0 20px rgba(0, 209, 255, 0.02);
+}
+
+.neon-text-blue {
+  color: var(--color-brand-primary);
+  text-shadow: 0 0 10px rgba(0, 209, 255, 0.4);
+}
+
+.neon-text-red {
+  color: var(--color-brand-danger);
+  text-shadow: 0 0 10px rgba(255, 61, 0, 0.4);
+}
+
+.status-tag {
+  @apply text-[10px] uppercase tracking-widest px-2 py-1 rounded font-bold border;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-cyber-bg;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-brand-primary/20 rounded-full hover:bg-brand-primary/40 transition-colors;
+}
+
