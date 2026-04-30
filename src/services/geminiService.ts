@@ -1,7 +1,20 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ThreatLevel } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let aiInstance: GoogleGenAI | null = null;
+
+function getAIInstance() {
+  if (!aiInstance) {
+    // Safely check for GEMINI_API_KEY without crashing if process is undefined
+    const apiKey = typeof process !== 'undefined' ? process.env?.GEMINI_API_KEY : undefined;
+    
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY is not defined. Please configure it in your environment.");
+    }
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
+}
 
 export interface ScanResult {
   riskLevel: ThreatLevel;
@@ -12,6 +25,7 @@ export interface ScanResult {
 }
 
 export async function analyzeThreat(content: string, type: 'text' | 'link' | 'image_base64'): Promise<ScanResult> {
+  const ai = getAIInstance();
   const prompt = `Analyze the following ${type} for cybersecurity threats: ${content}. 
     Provide a detailed risk assessment including risk level (LOW, MEDIUM, HIGH, CRITICAL), confidence score (0-100), 
     explanation of the threat, and mitigation steps.`;
@@ -42,9 +56,10 @@ export async function analyzeThreat(content: string, type: 'text' | 'link' | 'im
 }
 
 export async function analyzeImageThreat(base64Data: string): Promise<ScanResult> {
+  const ai = getAIInstance();
   const imagePart = {
     inlineData: {
-      mimeType: "image/png", // Assuming png for now, can be updated
+      mimeType: "image/png", 
       data: base64Data,
     },
   };

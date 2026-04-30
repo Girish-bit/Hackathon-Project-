@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Lock, Mail, ChevronRight, GpuIcon, Loader2, Link as LinkIcon, Image as ImageIcon, FileText } from 'lucide-react';
+import { Shield, Lock, Mail, ChevronRight, Loader2, Link as LinkIcon, Image as ImageIcon, FileText } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '../lib/utils';
 
