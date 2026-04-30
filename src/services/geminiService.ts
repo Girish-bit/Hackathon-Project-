@@ -5,7 +5,12 @@ let aiInstance: GoogleGenAI | null = null;
 
 function getAIInstance() {
   if (!aiInstance) {
-    const apiKey = process.env.GEMINI_API_KEY;
+    // Check for various casing patterns the user might have used
+    const apiKey = 
+      process.env.GEMINI_API_KEY || 
+      (process.env as any).Gemini_api_key || 
+      (process.env as any).GEMINI_API_key ||
+      (process.env as any).VITE_GEMINI_API_KEY;
     
     if (!apiKey) {
       console.error("DEBUG: GEMINI_API_KEY is missing from environment.");
