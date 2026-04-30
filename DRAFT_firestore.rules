@@ -28,13 +28,12 @@ service cloud.firestore {
 
     // Incident Validation
     function isValidIncident(data) {
-      return data.keys().hasAll(['timestamp', 'type', 'source', 'description', 'mitigation', 'riskLevel', 'status', 'authorId', 'createdAt']) &&
-             data.keys().size() == 9 &&
+      return data.keys().hasAll(['timestamp', 'type', 'source', 'description', 'riskLevel', 'status', 'authorId', 'createdAt']) &&
+             data.keys().size() == 8 &&
              data.timestamp is string &&
-             data.type in ['PHISHING', 'MALWARE', 'VULNERABILITY', 'NETWORK', 'IDENTITY', 'SYSTEM'] &&
-             data.source is string && data.source.size() <= 1000 &&
-             data.description is string && data.description.size() <= 10000 &&
-             data.mitigation is string && data.mitigation.size() <= 10000 &&
+             data.type in ['PHISHING', 'MALWARE', 'NETWORK', 'SYSTEM'] &&
+             data.source is string && data.source.size() <= 500 &&
+             data.description is string && data.description.size() <= 2000 &&
              data.riskLevel in ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] &&
              data.status is string && data.status.size() <= 100 &&
              data.authorId == request.auth.uid &&
@@ -43,8 +42,9 @@ service cloud.firestore {
 
     match /incidents/{incidentId} {
       allow create: if isSignedIn() && isValidIncident(incoming());
-      allow get: if isValidId(incidentId) && isOwner(existing().authorId);
+      allow get: if isOwner(existing().authorId);
       allow list: if isSignedIn() && resource.data.authorId == request.auth.uid;
+      // No updates or deletes allowed for security audit logs in this implementation
     }
   }
 }

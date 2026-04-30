@@ -128,9 +128,10 @@ export default function Layout({ children, activeSection, onSectionChange, userE
               </div>
               <button 
                 onClick={onLogout}
-                className="w-10 h-10 rounded-full border border-brand-primary/20 bg-brand-primary/5 flex items-center justify-center hover:bg-red-500/10 hover:border-red-500/50 hover:text-red-500 transition-all cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl border border-brand-primary/20 bg-brand-primary/5 hover:bg-red-500/10 hover:border-red-500/50 hover:text-red-500 transition-all cursor-pointer group"
               >
-                <LogOut className="w-4 h-4" />
+                <span className="text-[10px] font-black uppercase tracking-widest hidden sm:block">Logout</span>
+                <LogOut className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </button>
             </div>
           </header>

@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, googleProvider } from './lib/firebase';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
@@ -33,7 +33,26 @@ export default function App() {
     try {
       await signInWithEmailAndPassword(auth, email, pass);
     } catch (err: any) {
-      setAuthError(err.message || 'Authentication failed');
+      let message = err.message || 'Authentication failed';
+      if (err.code === 'auth/operation-not-allowed') {
+        message = 'Email/Password authentication is not enabled in Firebase Console.';
+      }
+      setAuthError(message);
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegister = async (email: string, pass: string) => {
+    setIsLoading(true);
+    setAuthError(null);
+    try {
+      await createUserWithEmailAndPassword(auth, email, pass);
+    } catch (err: any) {
+      let message = err.message || 'Registration failed';
+      if (err.code === 'auth/operation-not-allowed') {
+        message = 'Email/Password authentication is not enabled in Firebase Console.';
+      }
+      setAuthError(message);
       setIsLoading(false);
     }
   };
@@ -77,7 +96,15 @@ export default function App() {
   }
 
   if (!user) {
-    return <Login onLogin={handleLogin} onGoogleLogin={handleGoogleLogin} isLoading={isLoading} error={authError} />;
+    return (
+      <Login 
+        onLogin={handleLogin} 
+        onRegister={handleRegister}
+        onGoogleLogin={handleGoogleLogin} 
+        isLoading={isLoading} 
+        error={authError} 
+      />
+    );
   }
 
   return (

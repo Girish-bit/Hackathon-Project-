@@ -19,11 +19,22 @@ export default function AIScanner() {
     if (!auth.currentUser) return;
     
     const path = 'incidents';
+    
+    // Improved mapping to match firestore.rules enum
+    const mapThreatType = (type: string): string => {
+      const t = type.toUpperCase();
+      if (t.includes('PHISHING')) return 'PHISHING';
+      if (t.includes('MALWARE')) return 'MALWARE';
+      if (t.includes('VULNERABILITY')) return 'VULNERABILITY';
+      if (t.includes('IDENTITY') || t.includes('CREDENTIAL')) return 'IDENTITY';
+      if (t.includes('SYSTEM')) return 'SYSTEM';
+      return 'NETWORK'; // Default fallback
+    };
+
     try {
       await addDoc(collection(db, path), {
         timestamp: new Date().toISOString(),
-        type: scanRes.threatType.toUpperCase().includes('PHISHING') ? 'PHISHING' : 
-              scanRes.threatType.toUpperCase().includes('MALWARE') ? 'MALWARE' : 'NETWORK',
+        type: mapThreatType(scanRes.threatType),
         source: source,
         description: scanRes.explanation,
         mitigation: scanRes.mitigationSteps.join('. '),
@@ -88,7 +99,7 @@ export default function AIScanner() {
       <div className="text-center space-y-4">
         <h3 className="text-4xl font-display font-black text-white tracking-tighter uppercase italic">Neural Core X-1</h3>
         <p className="text-slate-500 font-mono text-[10px] tracking-[0.3em] uppercase max-w-xl mx-auto">
-          Deploy deep-packet inspection and visual heuristic analysis via Gemini-3 High Fidelity Model.
+          Deploy deep-packet inspection and visual heuristic analysis via Advanced Neural Heuristics Engine (ANHE).
         </p>
       </div>
 

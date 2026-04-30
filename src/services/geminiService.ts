@@ -26,9 +26,32 @@ export interface ScanResult {
 
 export async function analyzeThreat(content: string, type: 'text' | 'link' | 'image_base64'): Promise<ScanResult> {
   const ai = getAIInstance();
-  const prompt = `Analyze the following ${type} for cybersecurity threats: ${content}. 
-    Provide a detailed risk assessment including risk level (LOW, MEDIUM, HIGH, CRITICAL), confidence score (0-100), 
-    explanation of the threat, and mitigation steps.`;
+  
+  let prompt = '';
+  if (type === 'link') {
+    prompt = `Act as a Senior Cyber Intelligence Analyst. Analyze the following URL for security risks: "${content}".
+    Check for:
+    - Phishing/Homograph attacks (e.g., character substitution, IDN homographs)
+    - Suspicious TLDs or domains (e.g., .zip, .rev, .mov or other newly weaponized TLDs)
+    - Credential harvesting patterns in the path or query string
+    - Malicious redirection sequences or URL shortener abuse
+    - Known exploit kit patterns in parameters (SQLi, XSS, Path Traversal signatures in URLs)
+    - Indicators of Compromise (IoC) linked to known C2 (Command & Control) infrastructure
+    
+    Provide a detailed risk assessment in JSON format including riskLevel (LOW, MEDIUM, HIGH, CRITICAL), confidence score (0-100), threatType, explanation, and concrete mitigationSteps.`;
+  } else {
+    prompt = `Act as a SOC Analyst and Forensic Expert. Analyze the following message/content for cybersecurity threats: 
+    "${content}"
+    
+    Examine for:
+    - Social engineering and cognitive hacking
+    - Phishing and business email compromise (BEC) triggers
+    - Hidden instructions or suspicious shell/code snippets
+    - Information leakage or data exfiltration attempts
+    - Urgency, authority, or scarcity manipulation
+    
+    Provide a detailed risk assessment in JSON format including riskLevel (LOW, MEDIUM, HIGH, CRITICAL), confidence score (0-100), threatType, explanation, and concrete mitigationSteps.`;
+  }
 
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
@@ -64,7 +87,16 @@ export async function analyzeImageThreat(base64Data: string): Promise<ScanResult
     },
   };
   const textPart = {
-    text: "Analyze this image for cybersecurity threats like QR code phishing, hidden payloads in images, or social engineering cues. Return analysis in JSON.",
+    text: `Act as a Digital Forensics and Image Analysis Expert. Analyze this image for specialized cybersecurity threats.
+    
+    Look for:
+    - QR Code Phishing (Quishing)
+    - Sensitive information exposure (keys, passwords, PII in screenshots)
+    - Social engineering cues in visual layouts
+    - Signs of stenographic manipulation or hidden payloads
+    - Fake UI elements designed for credential harvesting
+    
+    Return a detailed JSON risk assessment with riskLevel (LOW, MEDIUM, HIGH, CRITICAL), confidence, explanation, mitigationSteps, and threatType.`,
   };
 
   const response = await ai.models.generateContent({

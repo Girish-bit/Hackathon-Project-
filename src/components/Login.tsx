@@ -5,18 +5,24 @@ import { cn } from '../lib/utils';
 
 interface LoginProps {
   onLogin: (email: string, pass: string) => void;
+  onRegister: (email: string, pass: string) => void;
   onGoogleLogin: () => void;
   isLoading: boolean;
   error?: string | null;
 }
 
-export default function Login({ onLogin, onGoogleLogin, isLoading, error }: LoginProps) {
+export default function Login({ onLogin, onRegister, onGoogleLogin, isLoading, error }: LoginProps) {
+  const [isRegistering, setIsRegistering] = React.useState(false);
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin(email, password);
+    if (isRegistering) {
+      onRegister(email, password);
+    } else {
+      onLogin(email, password);
+    }
   };
 
   return (
@@ -47,10 +53,28 @@ export default function Login({ onLogin, onGoogleLogin, isLoading, error }: Logi
         <div className="glass-card p-10 relative overflow-hidden group">
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-primary via-purple-500 to-brand-primary opacity-50" />
           
-          <h2 className="text-xl font-display font-bold text-white mb-8 tracking-tight uppercase italic flex items-center gap-3">
-             <div className="w-1.5 h-6 bg-brand-primary rounded-full shadow-[0_0_8px_#00D1FF]" />
-             Operator Authentication
-          </h2>
+          <div className="flex gap-2 mb-8 p-1 bg-black/40 rounded-xl border border-white/5">
+            <button 
+              type="button"
+              onClick={() => setIsRegistering(false)}
+              className={cn(
+                "flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] transition-all",
+                !isRegistering ? "bg-brand-primary text-cyber-bg shadow-[0_0_15px_rgba(0,209,255,0.3)]" : "text-slate-500 hover:text-slate-300"
+              )}
+            >
+              Authentication
+            </button>
+            <button 
+              type="button"
+              onClick={() => setIsRegistering(true)}
+              className={cn(
+                "flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] transition-all",
+                isRegistering ? "bg-brand-primary text-cyber-bg shadow-[0_0_15px_rgba(0,209,255,0.3)]" : "text-slate-500 hover:text-slate-300"
+              )}
+            >
+              Enrolment
+            </button>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
@@ -100,7 +124,7 @@ export default function Login({ onLogin, onGoogleLogin, isLoading, error }: Logi
                 <Loader2 className="w-6 h-6 animate-spin" />
               ) : (
                 <>
-                  Establish Uplink
+                  {isRegistering ? 'Register Account' : 'Establish Uplink'}
                   <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
                 </>
               )}

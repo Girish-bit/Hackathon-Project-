@@ -1,44 +1,27 @@
 {
   "entities": {
-    "User": {
-      "title": "User Profile",
-      "description": "System operator or administrator profile.",
-      "type": "object",
-      "properties": {
-        "uid": { "type": "string" },
-        "email": { "type": "string" },
-        "displayName": { "type": "string" },
-        "role": { "type": "string", "enum": ["OPERATOR", "ADMIN"] },
-        "lastLogin": { "type": "string", "format": "date-time" }
-      },
-      "required": ["uid", "email", "role"]
-    },
     "Incident": {
       "title": "Security Incident",
-      "description": "A persistent record of a detected threat.",
+      "description": "A detected security threat or system event.",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
         "timestamp": { "type": "string", "format": "date-time" },
-        "type": { "type": "string", "enum": ["MALWARE", "PHISHING", "VULNERABILITY", "NETWORK", "IDENTITY"] },
+        "type": { "type": "string", "enum": ["PHISHING", "MALWARE", "VULNERABILITY", "NETWORK", "IDENTITY", "SYSTEM"] },
         "source": { "type": "string" },
         "description": { "type": "string" },
         "mitigation": { "type": "string" },
         "riskLevel": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"] },
-        "status": { "type": "string", "enum": ["intercepted", "analyzed", "monitored"] },
-        "authorId": { "type": "string" }
+        "status": { "type": "string" },
+        "authorId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["timestamp", "type", "riskLevel", "authorId"]
+      "required": ["timestamp", "type", "source", "description", "mitigation", "riskLevel", "status", "authorId", "createdAt"]
     }
   },
   "firestore": {
-    "/users/{userId}": {
-      "schema": "User",
-      "description": "User profile data."
-    },
     "/incidents/{incidentId}": {
       "schema": "Incident",
-      "description": "Security incident logs."
+      "description": "Collection of recorded security incidents."
     }
   }
 }
