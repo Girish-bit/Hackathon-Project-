@@ -61,7 +61,7 @@ export async function analyzeThreat(content: string, type: 'text' | 'link' | 'im
   }
 
   const response = await ai.models.generateContent({
-    model: "gemini-flash-latest",
+    model: "gemini-3-flash-preview",
     contents: prompt,
     config: {
       responseMimeType: "application/json",
@@ -110,7 +110,7 @@ export async function analyzeImageThreat(base64Data: string): Promise<ScanResult
   };
 
   const response = await ai.models.generateContent({
-    model: "gemini-flash-latest",
+    model: "gemini-3-flash-preview",
     contents: { parts: [imagePart, textPart] },
     config: {
       responseMimeType: "application/json",
