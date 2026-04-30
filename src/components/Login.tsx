@@ -27,6 +27,119 @@ export default function Login({ onLogin, onRegister, onGoogleLogin, isLoading, e
 
   return (
     <div className="min-h-screen bg-cyber-bg grid-bg flex items-center justify-center p-6 font-sans relative overflow-hidden">
+      {/* Background Decorations - Left Side (Cyberbullying/Threats) */}
+      <div className="hidden xl:flex absolute left-0 top-0 bottom-0 w-1/4 flex-col justify-center items-center gap-12 p-8 pointer-events-none opacity-20">
+        {[
+          { label: 'HATE_SPEECH', color: 'text-red-500' },
+          { label: 'HARASSMENT', color: 'text-red-400' },
+          { label: 'CYBER_STALKING', color: 'text-orange-500' },
+          { label: 'EXCLUSION', color: 'text-red-600' }
+        ].map((threat, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ x: -100, opacity: 0 }}
+            animate={{ 
+              x: 0, 
+              opacity: [0.1, 0.3, 0.1],
+              y: [0, -20, 0]
+            }}
+            transition={{ 
+              delay: idx * 0.5,
+              duration: 4 + idx,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className={cn("font-mono text-xl font-bold tracking-[0.5em] whitespace-nowrap rotate-90", threat.color)}
+          >
+            {threat.label}
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Background Decorations - Right Side (Malicious Activity) */}
+      <div className="hidden xl:flex absolute right-0 top-0 bottom-0 w-1/4 flex-col justify-center items-center gap-12 p-8 pointer-events-none opacity-20">
+        {[
+          { label: 'SQL_INJECTION', color: 'text-brand-primary' },
+          { label: 'RAMWARE_PULSE', color: 'text-purple-500' },
+          { label: 'DDoS_OVERLOAD', color: 'text-brand-danger' },
+          { label: 'PHISHING_HOOK', color: 'text-yellow-500' }
+        ].map((threat, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ x: 100, opacity: 0 }}
+            animate={{ 
+              x: 0, 
+              opacity: [0.1, 0.4, 0.1],
+              y: [0, 20, 0],
+              skewY: [-5, 5, -5]
+            }}
+            transition={{ 
+              delay: idx * 0.5,
+              duration: 5 + idx,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className={cn("font-mono text-xl font-bold tracking-[0.5em] whitespace-nowrap -rotate-90", threat.color)}
+          >
+            {threat.label}
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Cyber Threat Matrix Overlay */}
+      <div className="absolute inset-0 pointer-events-none opacity-5">
+        <div className="absolute inset-0 grid grid-cols-12 gap-px">
+          {[...Array(48)].map((_, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 0.5, 0] }}
+              transition={{ 
+                duration: Math.random() * 5 + 2, 
+                repeat: Infinity,
+                delay: Math.random() * 5
+              }}
+              className="bg-brand-primary/20 h-full w-full"
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* 3D Floating Malicious Nodes */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {[...Array(12)].map((_, i) => (
+          <motion.div
+            key={i}
+            initial={{ 
+              x: Math.random() * 100 + "%", 
+              y: Math.random() * 100 + "%",
+              z: -100,
+              rotateX: 0,
+              rotateY: 0,
+              opacity: 0 
+            }}
+            animate={{ 
+              y: [null, Math.random() * 1000 - 500],
+              rotateX: 360,
+              rotateY: 360,
+              opacity: [0, 0.15, 0],
+              scale: [0.5, 1.2, 0.5]
+            }}
+            transition={{ 
+              duration: 15 + Math.random() * 20, 
+              repeat: Infinity,
+              ease: "linear"
+            }}
+            className="absolute w-24 h-24 border border-brand-primary/20 rounded-sm"
+            style={{ 
+              perspective: '1000px',
+              transformStyle: 'preserve-3d',
+              background: 'rgba(0, 209, 255, 0.02)'
+            }}
+          />
+        ))}
+      </div>
+
       {/* Dynamic Background Effects */}
       <div className="absolute top-1/4 -left-20 w-96 h-96 bg-brand-primary/10 rounded-full blur-[120px] animate-pulse" />
       <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
