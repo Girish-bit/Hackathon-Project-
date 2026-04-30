@@ -88,8 +88,11 @@ export default function IncidentLogs() {
               animate={{ opacity: 1, x: 0 }}
               key={log.id}
               className={cn(
-                "glass-card group flex flex-col hover:bg-white/5 transition-all border-l-2 border-l-transparent",
-                expandedId === log.id ? "border-l-brand-primary bg-white/5" : "hover:border-l-brand-primary/50"
+                "glass-card group flex flex-col transition-all border-l-2",
+                log.riskLevel === 'CRITICAL' ? "border-l-brand-danger bg-brand-danger/[0.02]" :
+                log.riskLevel === 'HIGH' ? "border-l-orange-500 bg-orange-500/[0.02]" :
+                "border-l-brand-primary bg-brand-primary/[0.02]",
+                expandedId === log.id ? "bg-white/5" : "hover:bg-white/5"
               )}
             >
               <div 
@@ -122,7 +125,12 @@ export default function IncidentLogs() {
                 <div className="flex items-center justify-between md:justify-end gap-6 shrink-0 border-t md:border-t-0 border-white/5 pt-4 md:pt-0">
                   <div className="text-right hidden sm:block">
                     <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-1">Intelligence Status</span>
-                    <span className="text-[10px] font-black text-brand-primary uppercase tracking-[0.2em] px-2 py-0.5 bg-brand-primary/10 border border-brand-primary/20 rounded-full">
+                    <span className={cn(
+                      "text-[10px] font-black uppercase tracking-[0.2em] px-2 py-0.5 border rounded-full",
+                      log.riskLevel === 'CRITICAL' ? "text-brand-danger bg-brand-danger/10 border-brand-danger/20" :
+                      log.riskLevel === 'HIGH' ? "text-orange-500 bg-orange-500/10 border-orange-500/20" :
+                      "text-brand-primary bg-brand-primary/10 border-brand-primary/20"
+                    )}>
                       {log.status}
                     </span>
                   </div>
@@ -236,7 +244,12 @@ export default function IncidentLogs() {
                           }}
                           className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-xs font-black uppercase tracking-widest text-white group"
                         >
-                          <FileDown className="w-4 h-4 text-brand-primary transition-transform group-hover:-translate-y-0.5" />
+                          <FileDown className={cn(
+                            "w-4 h-4 transition-transform group-hover:-translate-y-0.5",
+                            log.riskLevel === 'CRITICAL' ? "text-brand-danger" :
+                            log.riskLevel === 'HIGH' ? "text-orange-500" :
+                            "text-brand-primary"
+                          )} />
                           Download Forensic Report
                         </button>
                       </div>

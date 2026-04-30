@@ -19,6 +19,22 @@ export default function AIScanner() {
   const [mode, setMode] = React.useState<'text' | 'image' | 'link'>('text');
   const [currentImage, setCurrentImage] = React.useState<string | null>(null);
   const [lastIncidentId, setLastIncidentId] = React.useState<string | null>(null);
+  const [scanLogs, setScanLogs] = React.useState<string[]>([]);
+
+  const runScanSimulation = (type: 'text' | 'image' | 'link') => {
+    const logs = type === 'image' 
+      ? ['INITIALIZING HYPER-SPECTRAL SWEEP...', 'MAPPING GRAD-CAM REGIONS...', 'ANALYZING NOISE ENTROPY...', 'DECODING QUISHING VECTORS...', 'PIXEL-INCONSISTENCY CHECK...']
+      : type === 'link'
+      ? ['EXTRACTING DOMAIN METADATA...', 'CHECKING IDN HOMOGRAPH SIGNATURES...', 'RESOLVING REDIRECT CHAINS...', 'SCRUBBING URI PARAMETERS...', 'C2 INFRASTRUCTURE LOOKUP...']
+      : ['HEURISTIC PATTERN MATCHING...', 'COGNITIVE BIAS DETECTION...', 'OBFUSCATION DE-STRATIFICATION...', 'SENSITIVE ENTITY RECOGNITION...', 'PROMPT INJECTION ANALYSIS...'];
+    
+    setScanLogs([]);
+    logs.forEach((log, i) => {
+      setTimeout(() => {
+        setScanLogs(prev => [...prev.slice(-4), `[${new Date().toLocaleTimeString()}] ${log}`]);
+      }, i * 300);
+    });
+  };
 
   const handleDownloadPDF = async () => {
     if (!result) return;
@@ -85,6 +101,7 @@ export default function AIScanner() {
     setResult(null);
     setCurrentImage(null);
     setLastIncidentId(null);
+    runScanSimulation('image');
 
     const reader = new FileReader();
     reader.onload = async () => {
@@ -117,6 +134,7 @@ export default function AIScanner() {
     setResult(null);
     setCurrentImage(null);
     setLastIncidentId(null);
+    runScanSimulation(mode === 'link' ? 'link' : 'text');
     
     try {
       const res = await analyzeThreat(input, mode === 'link' ? 'link' : 'text');
@@ -161,23 +179,62 @@ export default function AIScanner() {
 
         <div className="p-8">
           {mode === 'image' ? (
-            <div 
-              {...getRootProps()} 
-              className={cn(
-                "border-2 border-dashed rounded-xl p-16 text-center transition-all cursor-pointer group relative",
-                isDragActive ? "border-brand-primary bg-brand-primary/5" : "border-white/5 hover:border-brand-primary/30"
-              )}
-            >
-              <input {...getInputProps()} />
-              <div className="flex flex-col items-center gap-6">
-                <div className="w-20 h-20 rounded-full bg-slate-900 border border-white/5 flex items-center justify-center group-hover:scale-110 transition-all duration-500 shadow-inner">
-                  <Upload className="w-8 h-8 text-slate-600 group-hover:text-brand-primary group-hover:drop-shadow-[0_0_8px_#00D1FF]" />
-                </div>
-                <div>
-                  <p className="text-xl font-display font-bold text-white tracking-tight italic uppercase">Drop Encrypted Fragment</p>
-                  <p className="text-[10px] text-slate-600 font-mono mt-2 tracking-widest uppercase">Visual Heuristics Engaged</p>
-                </div>
+            <div className="space-y-6">
+              <div 
+                {...getRootProps()} 
+                className={cn(
+                  "border-2 border-dashed rounded-2xl overflow-hidden transition-all relative group",
+                  isDragActive ? "border-brand-primary bg-brand-primary/5" : "border-white/5 hover:border-brand-primary/30",
+                  (isScanning || currentImage) ? "aspect-video" : "p-16"
+                )}
+              >
+                <input {...getInputProps()} />
+                
+                {currentImage ? (
+                  <ForensicHeatmap 
+                    imageUrl={currentImage} 
+                    regions={result?.heatmapRegions || []} 
+                    isLoading={isScanning} 
+                  />
+                ) : (
+                  <div className="flex flex-col items-center gap-6">
+                    <div className="w-20 h-20 rounded-full bg-slate-900 border border-white/5 flex items-center justify-center group-hover:scale-110 transition-all duration-500 shadow-inner">
+                      <Upload className="w-8 h-8 text-slate-600 group-hover:text-brand-primary group-hover:drop-shadow-[0_0_8px_#00D1FF]" />
+                    </div>
+                    <div>
+                      <p className="text-xl font-display font-bold text-white tracking-tight italic uppercase">Drop Encrypted Fragment</p>
+                      <p className="text-[10px] text-slate-600 font-mono mt-2 tracking-widest uppercase">Visual Heuristics Engaged</p>
+                    </div>
+                  </div>
+                )}
+
+                {isScanning && (
+                  <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex flex-col justify-end p-6 z-30 pointer-events-none">
+                     <div className="space-y-1">
+                        {scanLogs.map((log, i) => (
+                          <motion.p 
+                            initial={{ opacity: 0, x: -5 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            key={i} 
+                            className="text-[10px] font-mono text-brand-primary uppercase tracking-tight"
+                          >
+                            <span className="opacity-40">{">"}</span> {log}
+                          </motion.p>
+                        ))}
+                      </div>
+                  </div>
+                )}
               </div>
+
+              {currentImage && !isScanning && !result && (
+                <button
+                  onClick={handleScan}
+                  className="w-full py-5 bg-brand-primary text-cyber-bg font-display font-black text-xl tracking-[0.2em] uppercase rounded-2xl hover:bg-white transition-all flex items-center justify-center gap-4"
+                >
+                  <Search className="w-6 h-6" />
+                  ANALYZE_IMAGE
+                </button>
+              )}
             </div>
           ) : (
             <div className="space-y-6">
@@ -188,6 +245,31 @@ export default function AIScanner() {
                   placeholder={mode === 'link' ? "Input target URL endpoint..." : "Input raw payload or neural signature..."}
                   className="w-full h-56 bg-black/40 border border-white/5 rounded-2xl p-6 text-white font-mono text-sm focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/5 outline-none transition-all resize-none placeholder:text-slate-800"
                 />
+                
+                <AnimatePresence>
+                  {isScanning && (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute inset-0 bg-black/80 backdrop-blur-sm rounded-2xl p-6 flex flex-col justify-end border border-brand-primary/20 z-10"
+                    >
+                      <div className="space-y-1">
+                        {scanLogs.map((log, i) => (
+                          <motion.p 
+                            initial={{ opacity: 0, x: -5 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            key={i} 
+                            className="text-[10px] font-mono text-brand-primary/80 uppercase tracking-tight"
+                          >
+                            <span className="opacity-40">{">"}</span> {log}
+                          </motion.p>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 <div className="absolute bottom-4 right-4 pointer-events-none opacity-20 hidden md:block">
                   <div className="text-[8px] font-mono text-right uppercase">Buffer Status: Active</div>
                   <div className="text-[8px] font-mono text-right uppercase">Quantum Readiness: 100%</div>
@@ -253,18 +335,6 @@ export default function AIScanner() {
 
             <div className="p-8 grid grid-cols-1 lg:grid-cols-5 gap-10">
               <div className="lg:col-span-3 space-y-8">
-                {mode === 'image' && currentImage && (
-                  <div>
-                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
-                       Visual Core Manifest
-                    </h4>
-                    <ForensicHeatmap 
-                      imageUrl={currentImage} 
-                      regions={result.heatmapRegions || []} 
-                      isLoading={isScanning} 
-                    />
-                  </div>
-                )}
                 <div>
                   <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-brand-primary" /> Intelligence Report
