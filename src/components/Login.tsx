@@ -206,7 +206,13 @@ export default function Login({ onLogin, onRegister, onGoogleLogin, isLoading, e
           <div className="h-px w-12 bg-brand-primary/20 mx-auto mb-6" />
           <p className="text-[9px] font-mono text-slate-600 uppercase tracking-[0.3em] mb-2 leading-loose">
             Developed by<br/>
-            <span className="text-slate-400 font-bold">Girish G, Veerendra Gowda, Varsha B, Megha H</span>
+            <motion.span 
+              animate={{ opacity: [1, 0.4, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              className="text-brand-primary font-bold shadow-brand-primary/20"
+            >
+              Girish G, Veerendra Gowda, Varsha B, Megha H
+            </motion.span>
           </p>
         </div>
       </motion.div>

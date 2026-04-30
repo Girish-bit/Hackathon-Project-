@@ -22,18 +22,52 @@ export default function AIScanner() {
   const [lastIncidentId, setLastIncidentId] = React.useState<string | null>(null);
   const [scanLogs, setScanLogs] = React.useState<string[]>([]);
 
-  const runScanSimulation = (type: 'text' | 'image' | 'link') => {
-    const logs = type === 'image' 
-      ? ['INITIALIZING HYPER-SPECTRAL SWEEP...', 'MAPPING GRAD-CAM REGIONS...', 'ANALYZING NOISE ENTROPY...', 'DECODING QUISHING VECTORS...', 'PIXEL-INCONSISTENCY CHECK...']
-      : type === 'link'
-      ? ['EXTRACTING DOMAIN METADATA...', 'CHECKING IDN HOMOGRAPH SIGNATURES...', 'RESOLVING REDIRECT CHAINS...', 'SCRUBBING URI PARAMETERS...', 'C2 INFRASTRUCTURE LOOKUP...']
-      : ['HEURISTIC PATTERN MATCHING...', 'COGNITIVE BIAS DETECTION...', 'OBFUSCATION DE-STRATIFICATION...', 'SENSITIVE ENTITY RECOGNITION...', 'PROMPT INJECTION ANALYSIS...'];
+  const runScanSimulation = (type: 'text' | 'image' | 'link', content?: string) => {
+    let logs: string[] = [];
+    
+    if (type === 'image') {
+      logs = [
+        'INITIALIZING HYPER-SPECTRAL SWEEP...',
+        `SCANNING PIXEL MATRIX (${Math.floor(Math.random() * 1000 + 1000)}x${Math.floor(Math.random() * 1000 + 1000)})...`,
+        'MAPPING GRAD-CAM HEATMAP REGIONS...',
+        'ANALYZING NOISE ENTROPY & PRNU FINGERPRINTS...',
+        'DECODING STEGANOGRAPHIC CHANNELS...',
+        'PIXEL-INCONSISTENCY AUTHENTICATION...'
+      ];
+    } else if (type === 'link') {
+      const url = content || '';
+      const domain = url.split('/')[2] || 'UNKNOWN_ENDPOINT';
+      logs = [
+        `RESOLVING TARGET: ${domain}...`,
+        'CHECKING IDN HOMOGRAPH SIGNATURES...',
+        'TRAVERSING REDIRECT CHAINS...',
+        'SCRUBBING URI ENCODED PARAMETERS...',
+        'CROSS-REFERENCING C2 BLACKLISTS...',
+        'SSL/TLS HANDSHAKE VERIFICATION...'
+      ];
+      if (url.includes('login') || url.includes('auth')) {
+        logs.splice(3, 0, 'DETECTED SENSITIVE PATH COMPONENT: /auth_v1...');
+      }
+    } else {
+      const isLong = (content?.length || 0) > 200;
+      logs = [
+        `HEURISTIC ENGINE ATTACHED (${(content?.length || 0)} bytes)...`,
+        'SHANNON ENTROPY CALCULATION...',
+        'OBFUSCATION DE-STRATIFICATION...',
+        isLong ? 'PROCESSING BULK PAYLOAD SEGMENTS...' : 'FAST-PATH PATTERN MATCHING...',
+        'SENSITIVE ENTITY RECOGNITION...',
+        'PROMPT INJECTION VECTOR ANALYSIS...'
+      ];
+      if (content?.toLowerCase().includes('password') || content?.toLowerCase().includes('secret')) {
+        logs.splice(2, 0, 'ALERT: HIGH-VALUE CREDENTIAL TOKENS DETECTED...');
+      }
+    }
     
     setScanLogs([]);
     logs.forEach((log, i) => {
       setTimeout(() => {
-        setScanLogs(prev => [...prev.slice(-4), `[${new Date().toLocaleTimeString()}] ${log}`]);
-      }, i * 300);
+        setScanLogs(prev => [...prev.slice(-5), `[${new Date().toLocaleTimeString()}] ${log}`]);
+      }, i * 250);
     });
   };
 
@@ -103,7 +137,7 @@ export default function AIScanner() {
     setError(null);
     setCurrentImage(null);
     setLastIncidentId(null);
-    runScanSimulation('image');
+    runScanSimulation('image', file.name);
 
     const reader = new FileReader();
     reader.onload = async () => {
@@ -140,7 +174,7 @@ export default function AIScanner() {
     setError(null);
     setCurrentImage(null);
     setLastIncidentId(null);
-    runScanSimulation(mode === 'link' ? 'link' : 'text');
+    runScanSimulation(mode, input);
     
     try {
       // Add a small artificial delay for better forensic "feel" in prototype

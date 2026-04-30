@@ -29,15 +29,61 @@ export default function Dashboard() {
   return (
     <div className="space-y-8 pb-12">
       {/* Header Info */}
-      <div className="flex justify-between items-end mb-4">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-4">
         <div>
           <h2 className="text-2xl font-display font-black text-white tracking-tighter uppercase italic">Strategic Command</h2>
           <p className="text-xs font-mono text-slate-500 uppercase tracking-[0.2em] mt-1">Real-time infrastructure oversight</p>
         </div>
-        <div className="text-right">
-          <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest block">Active Session</span>
-          <span className="text-xs font-mono text-brand-primary tabular-nums">04:22:15.908</span>
-        </div>
+        
+        {/* Security Score Widget */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="glass-card px-8 lg:px-12 py-6 flex items-center gap-8 relative overflow-hidden group border-brand-primary/20"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/5 to-transparent pointer-events-none" />
+          <div className="relative">
+            <svg width="80" height="80" className="rotate-[-90deg]">
+              <circle
+                cx="40"
+                cy="40"
+                r="36"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="transparent"
+                className="text-white/5"
+              />
+              <motion.circle
+                cx="40"
+                cy="40"
+                r="36"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="transparent"
+                strokeDasharray="226.2"
+                initial={{ strokeDashoffset: 226.2 }}
+                animate={{ strokeDashoffset: 226.2 - (226.2 * 0.94) }}
+                transition={{ duration: 2, ease: "easeOut" }}
+                className="text-brand-primary drop-shadow-[0_0_8px_rgba(0,209,255,0.5)]"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-xl font-black text-white">94</span>
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-1">Global Health Index</div>
+            <div className="text-sm font-bold text-emerald-400 flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              SYSTEM OPTIMIZED
+            </div>
+          </div>
+          <div className="hidden sm:block h-12 w-px bg-white/5" />
+          <div className="hidden sm:flex flex-col items-end">
+            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Active Session</span>
+            <span className="text-xs font-mono text-brand-primary tabular-nums">04:22:15.908</span>
+          </div>
+        </motion.div>
       </div>
 
       {/* Stats Grid */}
