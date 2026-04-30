@@ -15,6 +15,7 @@ import { Download, FileDown } from 'lucide-react';
 export default function AIScanner() {
   const [input, setInput] = React.useState('');
   const [isScanning, setIsScanning] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
   const [result, setResult] = React.useState<ScanResult | null>(null);
   const [mode, setMode] = React.useState<'text' | 'image' | 'link'>('text');
   const [currentImage, setCurrentImage] = React.useState<string | null>(null);
@@ -99,6 +100,7 @@ export default function AIScanner() {
 
     setIsScanning(true);
     setResult(null);
+    setError(null);
     setCurrentImage(null);
     setLastIncidentId(null);
     runScanSimulation('image');
@@ -109,11 +111,14 @@ export default function AIScanner() {
       const base64 = base64Content.split(',')[1];
       setCurrentImage(base64Content);
       try {
+        // Forensic delay for deep-scan visualization
+        await new Promise(resolve => setTimeout(resolve, 2000));
         const res = await analyzeImageThreat(base64);
         setResult(res);
         await recordIncident(res, `Image Upload: ${file.name}`);
-      } catch (error) {
-        console.error(error);
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || 'Deep-scan identification failed.');
       } finally {
         setIsScanning(false);
       }
@@ -132,16 +137,20 @@ export default function AIScanner() {
     
     setIsScanning(true);
     setResult(null);
+    setError(null);
     setCurrentImage(null);
     setLastIncidentId(null);
     runScanSimulation(mode === 'link' ? 'link' : 'text');
     
     try {
+      // Add a small artificial delay for better forensic "feel" in prototype
+      await new Promise(resolve => setTimeout(resolve, 1500));
       const res = await analyzeThreat(input, mode === 'link' ? 'link' : 'text');
       setResult(res);
       await recordIncident(res, mode === 'link' ? `Link Scan: ${input.substring(0, 30)}...` : 'Manual Text Input');
-    } catch (error) {
-      console.error(error);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Neural link extraction failed.');
     } finally {
       setIsScanning(false);
     }
@@ -155,6 +164,24 @@ export default function AIScanner() {
           Deploy deep-packet inspection and visual heuristic analysis via Advanced Neural Heuristics Engine (ANHE).
         </p>
       </div>
+
+      <AnimatePresence>
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mb-6 p-4 bg-brand-danger/10 border border-brand-danger/30 rounded-xl flex items-center gap-4 text-brand-danger text-xs font-mono"
+          >
+            <ShieldX className="w-5 h-5 shrink-0" />
+            <div className="flex-1">
+              <span className="font-black uppercase tracking-widest block mb-1">System Error</span>
+              {error}
+            </div>
+            <button onClick={() => setError(null)} className="p-1 hover:bg-brand-danger/20 rounded">✕</button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="glass-card overflow-hidden">
         {/* Mode Selector */}

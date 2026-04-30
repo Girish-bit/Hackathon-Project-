@@ -5,11 +5,11 @@ let aiInstance: GoogleGenAI | null = null;
 
 function getAIInstance() {
   if (!aiInstance) {
-    // Safely check for GEMINI_API_KEY without crashing if process is undefined
-    const apiKey = typeof process !== 'undefined' ? process.env?.GEMINI_API_KEY : undefined;
+    const apiKey = process.env.GEMINI_API_KEY;
     
     if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is not defined. Please configure it in your environment.");
+      console.error("DEBUG: GEMINI_API_KEY is missing from environment.");
+      throw new Error("API Key Missing: Please add GEMINI_API_KEY to your project Settings -> Environment Variables.");
     }
     aiInstance = new GoogleGenAI({ apiKey });
   }
