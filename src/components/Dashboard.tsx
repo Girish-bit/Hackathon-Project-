@@ -41,30 +41,43 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ staggerChildren: 0.1 }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-6"
+      >
         <StatCard 
           label="Active Threats" 
           value="04" 
           type="danger"
           progress={15}
+          delay={0.1}
         />
         <StatCard 
           label="AI Confidence" 
           value="98.4%" 
           type="primary"
           progress={98}
+          delay={0.2}
         />
         <StatCard 
           label="Nodes Online" 
           value="1,208" 
           type="success"
           progress={85}
+          delay={0.3}
         />
-      </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Main Chart */}
-        <div className="lg:col-span-3 glass-card p-6 relative overflow-hidden group">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.4 }}
+          className="lg:col-span-3 glass-card p-6 relative overflow-hidden group hover:border-brand-primary/30 transition-colors"
+        >
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-primary to-transparent opacity-30" />
           <div className="mb-8 flex justify-between items-start">
             <div>
@@ -130,7 +143,7 @@ export default function Dashboard() {
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </motion.div>
 
         {/* Attack Distro */}
         <div className="glass-card p-6 flex flex-col items-center justify-center">
@@ -165,25 +178,32 @@ export default function Dashboard() {
   );
 }
 
-function StatCard({ label, value, type, progress }: { label: string, value: string, type: 'danger' | 'primary' | 'success', progress: number }) {
+function StatCard({ label, value, type, progress, delay }: { label: string, value: string, type: 'danger' | 'primary' | 'success', progress: number, delay?: number }) {
   const valueClass = type === 'danger' ? 'neon-text-red' : type === 'primary' ? 'neon-text-blue' : 'text-emerald-400';
   const barClass = type === 'danger' ? 'bg-brand-danger' : type === 'primary' ? 'bg-brand-primary' : 'bg-emerald-400';
 
   return (
-    <div className="glass-card p-6 relative group overflow-hidden">
+    <motion.div 
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: delay || 0, duration: 0.5 }}
+      whileHover={{ y: -5, scale: 1.02 }}
+      className="glass-card p-6 relative group overflow-hidden cursor-pointer"
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-brand-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="absolute top-0 left-0 w-full h-1 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-      <span className="text-[10px] text-slate-500 uppercase font-black tracking-[0.2em]">{label}</span>
-      <div className="mt-2 flex items-baseline gap-2">
+      <span className="text-[10px] text-slate-500 uppercase font-black tracking-[0.2em] relative z-10">{label}</span>
+      <div className="mt-2 flex items-baseline gap-2 relative z-10">
         <span className={cn("text-4xl font-black tracking-tighter italic", valueClass)}>{value}</span>
       </div>
-      <div className="w-full bg-slate-900/50 h-1.5 mt-4 rounded-full overflow-hidden border border-white/5">
+      <div className="w-full bg-slate-900/50 h-1.5 mt-4 rounded-full overflow-hidden border border-white/5 relative z-10">
         <motion.div 
           initial={{ width: 0 }}
           animate={{ width: `${progress}%` }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
+          transition={{ duration: 1.5, ease: "easeOut", delay: (delay || 0) + 0.3 }}
           className={cn("h-full", barClass)} 
         />
       </div>
-    </div>
+    </motion.div>
   );
 }

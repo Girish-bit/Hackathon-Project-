@@ -187,8 +187,10 @@ export default function AIScanner() {
         {/* Mode Selector */}
         <div className="flex bg-white/5 border-b border-white/5">
           {(['text', 'link', 'image'] as const).map((m) => (
-            <button
+            <motion.button
               key={m}
+              whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.03)' }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setMode(m)}
               className={cn(
                 "flex-1 py-4 flex items-center justify-center gap-3 font-mono text-[10px] tracking-[0.2em] uppercase transition-all relative overflow-hidden",
@@ -200,7 +202,7 @@ export default function AIScanner() {
               {m === 'link' && <LinkIcon className="w-4 h-4" />}
               {m === 'image' && <Upload className="w-4 h-4" />}
               {m}
-            </button>
+            </motion.button>
           ))}
         </div>
 
@@ -302,10 +304,12 @@ export default function AIScanner() {
                   <div className="text-[8px] font-mono text-right uppercase">Quantum Readiness: 100%</div>
                 </div>
               </div>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.01, boxShadow: "0 0 30px rgba(0, 209, 255, 0.2)" }}
+                whileTap={{ scale: 0.98 }}
                 onClick={handleScan}
                 disabled={isScanning || !input.trim()}
-                className="w-full py-5 bg-brand-primary text-cyber-bg font-display font-black text-xl tracking-[0.2em] uppercase rounded-2xl hover:bg-white hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] disabled:opacity-30 disabled:grayscale transition-all flex items-center justify-center gap-4 active:scale-[0.98]"
+                className="w-full py-5 bg-brand-primary text-cyber-bg font-display font-black text-xl tracking-[0.2em] uppercase rounded-2xl hover:bg-white transition-all flex items-center justify-center gap-4 active:scale-[0.98] disabled:opacity-30 disabled:grayscale"
               >
                 {isScanning ? (
                   <>
@@ -318,7 +322,7 @@ export default function AIScanner() {
                     INITIATE_PULSE
                   </>
                 )}
-              </button>
+              </motion.button>
             </div>
           )}
         </div>

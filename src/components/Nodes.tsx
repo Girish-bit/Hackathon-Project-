@@ -21,8 +21,15 @@ export default function Nodes() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {nodes.map((node) => (
-          <div key={node.id} className="glass-card p-6 group transition-all hover:bg-white/5 border-l-2 border-l-transparent hover:border-l-brand-primary">
+        {nodes.map((node, index) => (
+          <motion.div 
+            key={node.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.1 }}
+            whileHover={{ y: -5, backgroundColor: 'rgba(255, 255, 255, 0.05)', borderColor: 'rgba(0, 209, 255, 0.2)' }}
+            className="glass-card p-6 group transition-all border-l-2 border-l-transparent hover:border-l-brand-primary"
+          >
             <div className="flex justify-between items-start mb-6">
                <div className="p-3 bg-slate-900 border border-white/5 rounded-xl group-hover:border-brand-primary/30 transition-colors">
                   <Server className={cn(
@@ -65,6 +72,7 @@ export default function Nodes() {
                     <motion.div 
                       initial={{ width: 0 }}
                       animate={{ width: `${node.load}%` }}
+                      transition={{ duration: 1, delay: index * 0.1 + 0.3 }}
                       className={cn(
                         "h-full",
                         node.load > 50 ? 'bg-orange-400' : 'bg-brand-primary'
@@ -73,7 +81,7 @@ export default function Nodes() {
                   </div>
                </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>

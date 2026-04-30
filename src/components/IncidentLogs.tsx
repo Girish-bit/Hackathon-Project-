@@ -73,31 +73,45 @@ export default function IncidentLogs() {
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-24 w-full bg-white/5 animate-pulse rounded-2xl border border-white/5" />
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0.5 }}
+                animate={{ opacity: [0.5, 0.8, 0.5] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+                className="h-24 w-full bg-white/5 rounded-2xl border border-white/5 relative overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-shimmer" />
+              </motion.div>
             ))}
           </div>
         ) : filteredLogs.length === 0 ? (
-          <div className="glass-card p-12 text-center">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="glass-card p-12 text-center"
+          >
             <h4 className="text-slate-500 font-mono text-xs uppercase tracking-widest">No matching intercepts found</h4>
-          </div>
+          </motion.div>
         ) : (
-          filteredLogs.map((log) => (
+          filteredLogs.map((log, index) => (
             <motion.div
               layout
-              initial={{ opacity: 0, x: -10 }}
+              initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.05 }}
+              whileHover={{ x: 5, backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
               key={log.id}
               className={cn(
-                "glass-card group flex flex-col transition-all border-l-2",
+                "glass-card group flex flex-col transition-all border-l-2 cursor-pointer",
                 log.riskLevel === 'CRITICAL' ? "border-l-brand-danger bg-brand-danger/[0.02]" :
                 log.riskLevel === 'HIGH' ? "border-l-orange-500 bg-orange-500/[0.02]" :
                 "border-l-brand-primary bg-brand-primary/[0.02]",
-                expandedId === log.id ? "bg-white/5" : "hover:bg-white/5"
+                expandedId === log.id ? "bg-white/5 border-l-white" : ""
               )}
             >
               <div 
                 onClick={() => toggleExpand(log.id)}
-                className="p-5 flex flex-col md:flex-row md:items-center gap-6 cursor-pointer"
+                className="p-5 flex flex-col md:flex-row md:items-center gap-6"
               >
                 <div className="flex items-center gap-6 flex-1 min-w-0">
                   <div className={cn(
@@ -136,16 +150,23 @@ export default function IncidentLogs() {
                   </div>
                   
                   <div className={cn(
-                    "p-3 rounded-xl border flex flex-col items-center justify-center min-w-[100px]",
+                    "p-3 rounded-xl border flex flex-col items-center justify-center min-w-[100px] relative overflow-hidden",
                     log.riskLevel === 'CRITICAL' ? 'bg-brand-danger/20 border-brand-danger/30' : 
                     log.riskLevel === 'HIGH' ? 'bg-orange-500/20 border-orange-500/30' :
                     'bg-brand-primary/20 border-brand-primary/30'
                   )}>
+                    {log.riskLevel === 'CRITICAL' && (
+                      <motion.div 
+                        animate={{ opacity: [0, 0.4, 0] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="absolute inset-0 bg-brand-danger/40"
+                      />
+                    )}
                     <span className={cn(
-                      "text-[10px] font-black uppercase tracking-widest",
+                      "text-[10px] font-black uppercase tracking-widest relative z-10",
                       log.riskLevel === 'CRITICAL' ? 'neon-text-red' : 'text-white'
                     )}>{log.riskLevel}</span>
-                    <span className="text-[8px] font-bold text-slate-500 uppercase">Risk Level</span>
+                    <span className="text-[8px] font-bold text-slate-500 uppercase relative z-10">Risk Level</span>
                   </div>
                   <motion.div
                     animate={{ rotate: expandedId === log.id ? 180 : 0 }}

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Shield, LayoutDashboard, Search, FileText, Server, LogOut, User, Menu, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { NAVIGATION } from '../constants';
+import GeminiBot from './GeminiBot';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -194,6 +195,7 @@ export default function Layout({ children, activeSection, onSectionChange, userE
           </div>
         </div>
       </div>
+      <GeminiBot />
     </div>
   );
 }

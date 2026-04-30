@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, googleProvider } from './lib/firebase';
 import Layout from './components/Layout';
@@ -115,10 +116,20 @@ export default function App() {
       userPhoto={user.photoURL}
       onLogout={handleLogout}
     >
-      {activeSection === 'dashboard' && <Dashboard />}
-      {activeSection === 'scanner' && <AIScanner />}
-      {activeSection === 'logs' && <IncidentLogs />}
-      {activeSection === 'nodes' && <Nodes />}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeSection}
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -10 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+        >
+          {activeSection === 'dashboard' && <Dashboard />}
+          {activeSection === 'scanner' && <AIScanner />}
+          {activeSection === 'logs' && <IncidentLogs />}
+          {activeSection === 'nodes' && <Nodes />}
+        </motion.div>
+      </AnimatePresence>
     </Layout>
   );
 }

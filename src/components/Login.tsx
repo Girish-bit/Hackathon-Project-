@@ -165,29 +165,40 @@ export default function Login({ onLogin, onRegister, onGoogleLogin, isLoading, e
         {/* Educational Section for Awareness */}
         <div className="mt-12 space-y-6">
           <h3 className="text-center text-[10px] font-black text-slate-600 uppercase tracking-[0.4em]">Stay Informed • Stay Secure</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="glass-card p-4 bg-white/5 border-white/5 text-center">
-              <div className="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center mx-auto mb-3">
-                <LinkIcon className="w-4 h-4 text-brand-primary" />
-              </div>
-              <h4 className="text-[10px] font-bold text-white uppercase mb-1 tracking-wider">Strange Links</h4>
-              <p className="text-[9px] text-slate-500 leading-relaxed font-medium">Never click URLs that look scrambled or come from unknown senders asking for urgent action.</p>
-            </div>
-            <div className="glass-card p-4 bg-white/5 border-white/5 text-center">
-              <div className="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center mx-auto mb-3">
-                <ImageIcon className="w-4 h-4 text-brand-primary" />
-              </div>
-              <h4 className="text-[10px] font-bold text-white uppercase mb-1 tracking-wider">Hidden Files</h4>
-              <p className="text-[9px] text-slate-500 leading-relaxed font-medium">Digital threats can be hidden inside simple images. Only download attachments from trusted sources.</p>
-            </div>
-            <div className="glass-card p-4 bg-white/5 border-white/5 text-center">
-              <div className="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center mx-auto mb-3">
-                <FileText className="w-4 h-4 text-brand-primary" />
-              </div>
-              <h4 className="text-[10px] font-bold text-white uppercase mb-1 tracking-wider">Fake Messages</h4>
-              <p className="text-[9px] text-slate-500 leading-relaxed font-medium">Official organizations will NEVER ask for your password via text or email. Be wary of such requests.</p>
-            </div>
-          </div>
+          <motion.div 
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: { staggerChildren: 0.2 }
+              }
+            }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-4"
+          >
+            {[
+              { icon: <LinkIcon className="w-4 h-4 text-brand-primary" />, title: "Strange Links", desc: "Never click URLs that look scrambled or come from unknown senders asking for urgent action." },
+              { icon: <ImageIcon className="w-4 h-4 text-brand-primary" />, title: "Hidden Files", desc: "Digital threats can be hidden inside simple images. Only download attachments from trusted sources." },
+              { icon: <FileText className="w-4 h-4 text-brand-primary" />, title: "Fake Messages", desc: "Official organizations will NEVER ask for your password via text or email. Be wary of such requests." }
+            ].map((item, i) => (
+              <motion.div 
+                key={i}
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0 }
+                }}
+                whileHover={{ y: -5, backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
+                className="glass-card p-4 bg-white/5 border-white/5 text-center transition-colors cursor-default"
+              >
+                <div className="w-8 h-8 rounded-lg bg-brand-primary/10 flex items-center justify-center mx-auto mb-3">
+                  {item.icon}
+                </div>
+                <h4 className="text-[10px] font-bold text-white uppercase mb-1 tracking-wider">{item.title}</h4>
+                <p className="text-[9px] text-slate-500 leading-relaxed font-medium">{item.desc}</p>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
 
         {/* Developer Credits */}

@@ -154,3 +154,22 @@ export async function analyzeImageThreat(base64Data: string): Promise<ScanResult
 
   return JSON.parse(response.text);
 }
+
+export async function chatWithGemini(message: string, history: any[] = []): Promise<string> {
+  try {
+    const ai = getAIInstance();
+    
+    // System context prepended to the user message for this specific request
+    const prompt = `[CYBER SHIELD AI INSTRUCTIONS: Technical, Futuristic, SOC Assistant tone. Assist with threat forensics.]\n\n${message}`;
+    
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: [...history, { role: 'user', parts: [{ text: prompt }] }]
+    });
+    
+    return response.text || "Communication out of sync. Response failed.";
+  } catch (error) {
+    console.error("Chat Error:", error);
+    throw error;
+  }
+}
