@@ -45,7 +45,7 @@ export default function Login({ onLogin, onRegister, onGoogleLogin, isLoading, e
             <Shield className="w-10 h-10 text-white" />
           </motion.div>
           <h1 className="text-4xl font-display font-black text-white tracking-tighter uppercase italic neon-text-blue">
-            DEEP GUARDIAN
+            CYBER SHIELD
           </h1>
           <p className="text-xs font-mono text-slate-500 uppercase tracking-[0.4em]">Neural Defense Network</p>
         </div>

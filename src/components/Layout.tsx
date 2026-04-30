@@ -36,7 +36,7 @@ export default function Layout({ children, activeSection, onSectionChange, userE
                 animate={{ opacity: 1 }}
                 className="font-display font-black text-xl tracking-tighter text-white whitespace-nowrap neon-text-blue"
               >
-                DEEP GUARDIAN
+                CYBER SHIELD
               </motion.span>
             )}
           </div>
