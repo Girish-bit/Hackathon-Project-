@@ -31,7 +31,12 @@ export default function Dashboard() {
       {/* Header Info */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-4">
         <div>
-          <h2 className="text-2xl font-display font-black text-white tracking-tighter uppercase italic">Strategic Command</h2>
+          <h2 className="text-2xl font-display font-black text-white tracking-tighter uppercase italic flex flex-wrap items-center gap-3">
+            WAR ROOM
+            <span className="text-[10px] font-mono px-3 py-1 bg-brand-primary/20 border border-brand-primary/50 rounded-full text-brand-primary shadow-[0_0_10px_rgba(0,209,255,0.3)] not-italic tracking-[0.2em] animate-pulse">
+              Techathon From BGMIT
+            </span>
+          </h2>
           <p className="text-xs font-mono text-slate-500 uppercase tracking-[0.2em] mt-1">Real-time infrastructure oversight</p>
         </div>
         
