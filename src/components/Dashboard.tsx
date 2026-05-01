@@ -6,7 +6,7 @@ import {
 import { Shield, Activity, Target, Zap, Waves, AlertTriangle } from 'lucide-react';
 import { THREAT_CONFIG } from '../constants';
 import { cn } from '../lib/utils';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { IndiaHeatmap } from './IndiaHeatmap';
 
 const MOCK_LINE_DATA = [

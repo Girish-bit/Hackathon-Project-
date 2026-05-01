@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDropzone } from 'react-dropzone';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Loader2, ShieldCheck, ShieldAlert, ShieldX, Upload, Link as LinkIcon, FileText, AlertCircle, CheckCircle2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';

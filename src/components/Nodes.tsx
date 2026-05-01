@@ -1,6 +1,6 @@
 import React from 'react';
 import { Server } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
 
 export default function Nodes() {

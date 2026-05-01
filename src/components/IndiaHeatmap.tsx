@@ -6,7 +6,7 @@ import {
   Marker
 } from 'react-simple-maps';
 import { Tooltip } from 'react-tooltip';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldAlert, Activity, Radar } from 'lucide-react';
 import { cn } from '../lib/utils';
 

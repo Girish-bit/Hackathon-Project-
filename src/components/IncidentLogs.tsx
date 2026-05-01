@@ -5,7 +5,7 @@ import { db, auth, handleFirestoreError, OperationType } from '../lib/firebase';
 import { THREAT_CONFIG } from '../constants';
 import { SecurityIncident } from '../types';
 import { cn } from '../lib/utils';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { generateForensicReport } from '../lib/pdfGenerator';
 
 export default function IncidentLogs() {
