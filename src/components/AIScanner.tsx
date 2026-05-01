@@ -11,6 +11,7 @@ import { THREAT_CONFIG } from '../constants';
 import { ForensicHeatmap } from './ForensicHeatmap';
 import { generateForensicReport } from '../lib/pdfGenerator';
 import { Download, FileDown } from 'lucide-react';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 
 export default function AIScanner() {
   const [input, setInput] = React.useState('');
@@ -398,8 +399,8 @@ export default function AIScanner() {
                </button>
             </div>
 
-            <div className="p-8 grid grid-cols-1 lg:grid-cols-5 gap-10">
-              <div className="lg:col-span-3 space-y-8">
+            <div className="p-8 grid grid-cols-1 lg:grid-cols-6 gap-10">
+              <div className="lg:col-span-2 space-y-8">
                 <div>
                   <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 text-brand-primary" /> Intelligence Report
@@ -408,15 +409,53 @@ export default function AIScanner() {
                     <ReactMarkdown>{result.explanation}</ReactMarkdown>
                   </div>
                 </div>
-                <div className="flex gap-10">
-                  <div className="p-4 glass-card bg-white/5 border-white/5">
+                <div className="flex gap-4">
+                  <div className="p-4 glass-card bg-white/5 border-white/5 flex-1">
                     <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-2">Primary Vector</span>
-                    <span className="text-xs font-mono text-white p-1 px-2 border border-brand-primary/20 rounded bg-brand-primary/5 uppercase">{result.threatType}</span>
+                    <span className="text-[10px] font-mono text-white p-1 px-2 border border-brand-primary/20 rounded bg-brand-primary/5 uppercase">{result.threatType}</span>
                   </div>
-                  <div className="p-4 glass-card bg-white/5 border-white/5">
+                  <div className="p-4 glass-card bg-white/5 border-white/5 flex-1">
                     <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-2">Timestamp</span>
-                    <span className="text-xs font-mono text-white uppercase">{new Date().toLocaleTimeString()}</span>
+                    <span className="text-[10px] font-mono text-white uppercase">{new Date().toLocaleTimeString()}</span>
                   </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-2 space-y-4">
+                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 flex items-center gap-2">
+                  <Search className="w-4 h-4 text-brand-primary" /> Forensic Analysis
+                </h4>
+                <div className="h-[280px] w-full glass-card border-white/5 bg-slate-900/40 p-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart cx="50%" cy="50%" outerRadius="70%" data={result.metrics}>
+                      <PolarGrid stroke="rgba(255,255,255,0.05)" />
+                      <PolarAngleAxis 
+                        dataKey="label" 
+                        tick={{ fill: '#64748b', fontSize: 8, fontWeight: 700 }} 
+                      />
+                      <PolarRadiusAxis 
+                        angle={30} 
+                        domain={[0, 100]} 
+                        tick={false}
+                        axisLine={false}
+                      />
+                      <Radar
+                        name="Threat"
+                        dataKey="value"
+                        stroke="#00D1FF"
+                        fill="#00D1FF"
+                        fillOpacity={0.4}
+                      />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {result.metrics?.map((m, i) => (
+                    <div key={i} className="flex justify-between items-center text-[8px] font-mono uppercase bg-white/5 p-2 border border-white/5">
+                      <span className="text-slate-500">{m.label}</span>
+                      <span className="text-white font-bold">{m.value}%</span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
