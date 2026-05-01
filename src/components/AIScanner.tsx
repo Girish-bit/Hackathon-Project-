@@ -18,12 +18,13 @@ export default function AIScanner() {
   const [isScanning, setIsScanning] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [result, setResult] = React.useState<ScanResult | null>(null);
-  const [mode, setMode] = React.useState<'text' | 'image' | 'link'>('text');
+  const [mode, setMode] = React.useState<'text' | 'link' | 'image' | 'file'>('text');
   const [currentImage, setCurrentImage] = React.useState<string | null>(null);
   const [lastIncidentId, setLastIncidentId] = React.useState<string | null>(null);
   const [scanLogs, setScanLogs] = React.useState<string[]>([]);
+  const [fileName, setFileName] = React.useState<string | null>(null);
 
-  const runScanSimulation = (type: 'text' | 'image' | 'link', content?: string) => {
+  const runScanSimulation = (type: 'text' | 'image' | 'link' | 'file', content?: string) => {
     let logs: string[] = [];
     
     if (type === 'image') {
@@ -34,6 +35,15 @@ export default function AIScanner() {
         'ANALYZING NOISE ENTROPY & PRNU FINGERPRINTS...',
         'DECODING STEGANOGRAPHIC CHANNELS...',
         'PIXEL-INCONSISTENCY AUTHENTICATION...'
+      ];
+    } else if (type === 'file') {
+      logs = [
+        `MOUNTING BINARY STREAM: ${content || 'DOCUMENT.PDF'}...`,
+        'EXTRACTING OLE OBJECTS & EMBEDDED STREAMS...',
+        'VBA MACRO DE-OBFUSCATION SEQUENCE...',
+        'SCANNING FOR /JAVASCRIPT & /OPENACTION FRAGMENTS...',
+        'CROSS-REFERENCING CVE-2024-FINGERPRINTS...',
+        'ENTROPY ANALYSIS OF ENCRYPTED SECTIONS...'
       ];
     } else if (type === 'link') {
       const url = content || '';
@@ -80,7 +90,7 @@ export default function AIScanner() {
       id: lastIncidentId || 'adhoc-analysis',
       timestamp: new Date().toISOString(),
       type: result.threatType as any,
-      source: mode === 'link' ? input : mode === 'image' ? 'Visual Forensics' : 'Text Analysis',
+      source: mode === 'link' ? input : mode === 'image' ? (fileName || 'Visual Forensics') : mode === 'file' ? (fileName || 'Document Analysis') : 'Text Analysis',
       description: result.explanation,
       mitigation: result.mitigationSteps.join('. '),
       riskLevel: result.riskLevel,
@@ -137,55 +147,87 @@ export default function AIScanner() {
     setResult(null);
     setError(null);
     setCurrentImage(null);
+    setFileName(file.name);
     setLastIncidentId(null);
-    runScanSimulation('image', file.name);
-
+    
     const reader = new FileReader();
-    reader.onload = async () => {
-      const base64Content = reader.result as string;
-      const base64 = base64Content.split(',')[1];
-      setCurrentImage(base64Content);
-      try {
-        // Forensic delay for deep-scan visualization
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        const res = await analyzeImageThreat(base64);
-        setResult(res);
-        await recordIncident(res, `Image Upload: ${file.name}`);
-      } catch (err: any) {
-        console.error(err);
-        setError(err.message || 'Deep-scan identification failed.');
-      } finally {
-        setIsScanning(false);
-      }
-    };
-    reader.readAsDataURL(file);
-  }, []);
+    
+    if (mode === 'image') {
+      runScanSimulation('image', file.name);
+      reader.onload = async () => {
+        const base64Content = reader.result as string;
+        const base64 = base64Content.split(',')[1];
+        setCurrentImage(base64Content);
+        try {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          const res = await analyzeImageThreat(base64);
+          setResult(res);
+          await recordIncident(res, `Image Upload: ${file.name}`);
+        } catch (err: any) {
+          setError(err.message || 'Deep-scan identification failed.');
+        } finally {
+          setIsScanning(false);
+        }
+      };
+      reader.readAsDataURL(file);
+    } else {
+      runScanSimulation('file', file.name);
+      reader.onload = async () => {
+        const textContent = reader.result as string;
+        try {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          const res = await analyzeThreat(`FILE_NAME: ${file.name}\n\nCONTENT_PREVIEW: ${textContent.substring(0, 5000)}`, 'document');
+          setResult(res);
+          await recordIncident(res, `Document Scan: ${file.name}`);
+        } catch (err: any) {
+          setError(err.message || 'Document forensic extraction failed.');
+        } finally {
+          setIsScanning(false);
+        }
+      };
+      reader.readAsText(file);
+    }
+  }, [mode]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop, 
-    accept: { 'image/*': [] },
-    disabled: isScanning || mode !== 'image'
+    accept: mode === 'image' 
+      ? { 'image/*': [] } 
+      : { 'application/pdf': ['.pdf'], 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'], 'text/plain': ['.txt'] },
+    disabled: isScanning || (mode !== 'image' && mode !== 'file')
   });
 
   const handleScan = async () => {
-    if (!input.trim() && mode !== 'image') return;
+    if (!input.trim() && mode !== 'image' && mode !== 'file') return;
     
     setIsScanning(true);
     setResult(null);
     setError(null);
     setCurrentImage(null);
     setLastIncidentId(null);
-    runScanSimulation(mode, input);
+    runScanSimulation(mode, input || fileName || 'UNKNOWN');
     
     try {
-      // Add a small artificial delay for better forensic "feel" in prototype
       await new Promise(resolve => setTimeout(resolve, 1500));
-      const res = await analyzeThreat(input, mode === 'link' ? 'link' : 'text');
+      let res: ScanResult;
+      
+      if (mode === 'image' && currentImage) {
+        const base64 = currentImage.split(',')[1];
+        res = await analyzeImageThreat(base64);
+      } else if (mode === 'link') {
+        res = await analyzeThreat(input, 'link');
+      } else if (mode === 'file' && fileName) {
+        // For a real app we'd send the content, for prototype we simulate content analysis if already loaded
+        res = await analyzeThreat(`FILE_NAME: ${fileName}`, 'document');
+      } else {
+        res = await analyzeThreat(input, 'text');
+      }
+      
       setResult(res);
-      await recordIncident(res, mode === 'link' ? `Link Scan: ${input.substring(0, 30)}...` : 'Manual Text Input');
+      await recordIncident(res, mode === 'link' ? `Link Scan: ${input.substring(0, 30)}...` : mode === 'file' ? `File Scan: ${fileName}` : mode === 'image' ? `Image Scan: ${fileName}` : 'Manual Text Input');
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Neural link extraction failed.');
+      setError(err.message || 'Neural analysis failure.');
     } finally {
       setIsScanning(false);
     }
@@ -221,12 +263,18 @@ export default function AIScanner() {
       <div className="glass-card overflow-hidden">
         {/* Mode Selector */}
         <div className="flex bg-white/5 border-b border-white/5">
-          {(['text', 'link', 'image'] as const).map((m) => (
+          {(['text', 'link', 'image', 'file'] as const).map((m) => (
             <motion.button
               key={m}
               whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.03)' }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => setMode(m)}
+              onClick={() => {
+                setMode(m);
+                setResult(null);
+                setCurrentImage(null);
+                setFileName(null);
+                setInput('');
+              }}
               className={cn(
                 "flex-1 py-4 flex items-center justify-center gap-3 font-mono text-[10px] tracking-[0.2em] uppercase transition-all relative overflow-hidden",
                 mode === m ? "text-brand-primary font-black" : "text-slate-600 hover:text-slate-400"
@@ -236,20 +284,21 @@ export default function AIScanner() {
               {m === 'text' && <FileText className="w-4 h-4" />}
               {m === 'link' && <LinkIcon className="w-4 h-4" />}
               {m === 'image' && <Upload className="w-4 h-4" />}
+              {m === 'file' && <Download className="w-4 h-4 rotate-180" />}
               {m}
             </motion.button>
           ))}
         </div>
 
         <div className="p-8">
-          {mode === 'image' ? (
+          {(mode === 'image' || mode === 'file') ? (
             <div className="space-y-6">
               <div 
                 {...getRootProps()} 
                 className={cn(
                   "border-2 border-dashed rounded-2xl overflow-hidden transition-all relative group",
                   isDragActive ? "border-brand-primary bg-brand-primary/5" : "border-white/5 hover:border-brand-primary/30",
-                  (isScanning || currentImage) ? "aspect-video" : "p-16"
+                  (isScanning || currentImage || fileName) ? "aspect-video" : "p-16"
                 )}
               >
                 <input {...getInputProps()} />
@@ -260,14 +309,28 @@ export default function AIScanner() {
                     regions={result?.heatmapRegions || []} 
                     isLoading={isScanning} 
                   />
+                ) : fileName ? (
+                  <div className="h-full flex flex-col items-center justify-center gap-4 bg-slate-900/40">
+                     <FileText className="w-16 h-16 text-brand-primary animate-pulse" />
+                     <p className="text-xl font-display font-black text-white italic uppercase tracking-tighter">{fileName}</p>
+                     <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">Document Loaded • Awaiting Command</p>
+                  </div>
                 ) : (
                   <div className="flex flex-col items-center gap-6">
                     <div className="w-20 h-20 rounded-full bg-slate-900 border border-white/5 flex items-center justify-center group-hover:scale-110 transition-all duration-500 shadow-inner">
-                      <Upload className="w-8 h-8 text-slate-600 group-hover:text-brand-primary group-hover:drop-shadow-[0_0_8px_#00D1FF]" />
+                      {mode === 'image' ? (
+                        <Upload className="w-8 h-8 text-slate-600 group-hover:text-brand-primary group-hover:drop-shadow-[0_0_8px_#00D1FF]" />
+                      ) : (
+                        <Download className="w-8 h-8 text-slate-600 group-hover:text-brand-primary group-hover:drop-shadow-[0_0_8px_#00D1FF] rotate-180" />
+                      )}
                     </div>
                     <div>
-                      <p className="text-xl font-display font-bold text-white tracking-tight italic uppercase">Drop Encrypted Fragment</p>
-                      <p className="text-[10px] text-slate-600 font-mono mt-2 tracking-widest uppercase">Visual Heuristics Engaged</p>
+                      <p className="text-xl font-display font-bold text-white tracking-tight italic uppercase">
+                        {mode === 'image' ? 'Drop Encrypted Fragment' : 'Upload Neural Document'}
+                      </p>
+                      <p className="text-[10px] text-slate-600 font-mono mt-2 tracking-widest uppercase">
+                        {mode === 'image' ? 'Visual Heuristics Engaged' : 'Document Forensics Active'}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -290,13 +353,13 @@ export default function AIScanner() {
                 )}
               </div>
 
-              {currentImage && !isScanning && !result && (
+              {(currentImage || fileName) && !isScanning && !result && (
                 <button
                   onClick={handleScan}
                   className="w-full py-5 bg-brand-primary text-cyber-bg font-display font-black text-xl tracking-[0.2em] uppercase rounded-2xl hover:bg-white transition-all flex items-center justify-center gap-4"
                 >
                   <Search className="w-6 h-6" />
-                  ANALYZE_IMAGE
+                  {mode === 'image' ? 'ANALYZE_IMAGE' : 'ANALYZE_DOCUMENT'}
                 </button>
               )}
             </div>
