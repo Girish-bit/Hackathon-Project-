@@ -2,6 +2,7 @@ import React from 'react';
 import { Server } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '../lib/utils';
+import { IndiaHeatmap } from './IndiaHeatmap';
 
 export default function Nodes() {
   const nodes = [
@@ -84,6 +85,8 @@ export default function Nodes() {
           </motion.div>
         ))}
       </div>
+
+      <IndiaHeatmap />
     </div>
   );
 }

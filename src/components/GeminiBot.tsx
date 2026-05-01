@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, Send, X, MessageSquare, Sparkles, Terminal } from 'lucide-react';
 import { chatWithGemini } from '../services/geminiService';
 import { cn } from '../lib/utils';
